@@ -4,7 +4,7 @@
 //
 #include "MetadataExtractor.h"
 
-uint16_t getShort
+ExifShort getShort
 (
     void *pShort,
     int fileByteOrder
@@ -29,7 +29,7 @@ uint16_t getShort
     return swappedValue;
 }
 
-uint32_t getLong
+ExifLong getLong
 (
     void *pLong,
     int fileByteOrder
@@ -382,7 +382,7 @@ void parseExifAttributeInfoSegment
     //  to start with an offset of "0 from the TIFF header". The TIFF header,
     //  is located 6 bytes from the start of our APP1 segment. We'll specify
     //  that, here.
-    uint32_t exifOffset = 0x6;
+    ExifLong exifOffset = 0x6;
     
     // If the segment that we're passed, is NULL, then we're going to exit,
     //  because we can't do anything else.
@@ -402,7 +402,7 @@ void readIFD
 (
     MetadataAttributesContainer *pAttributeContainer,
     char *pAPP1Segment,
-    uint32_t offset,
+    ExifLong offset,
     int32_t fileByteOrder
 )
 {
@@ -415,7 +415,7 @@ void readIFD
     //  entries that said IFD contains. We'll fetch that value, here. We'll also
     //  increase our offset by 2 bytes, to skip the number of entries value
     //  later on.
-    uint16_t numEntries = getShort((pAPP1Segment + offset), fileByteOrder);
+    ExifShort numEntries = getShort((pAPP1Segment + offset), fileByteOrder);
     offset += 0x4;
     
     printf("Number of Entries: %d\n", numEntries);
@@ -440,10 +440,10 @@ void processTag
 {
     MetadataAttribute *pAttribute = NULL;
     
-    uint16_t tagMarker = getShort((pTag), fileByteOrder);
-    uint16_t tagType   = getShort((pTag + 2), fileByteOrder);
-    uint32_t tagCount  = getLong((pTag + 4), fileByteOrder);
-    uint16_t tagBytes  = getTypeBytes(tagType) * tagCount;
+    ExifShort tagMarker = getShort((pTag), fileByteOrder);
+    ExifShort tagType   = getShort((pTag + 2), fileByteOrder);
+    ExifLong tagCount  = getLong((pTag + 4), fileByteOrder);
+    ExifShort tagBytes  = getTypeBytes(tagType) * tagCount;
     
     // uint32_t tagValueOffset = 0x8;
     

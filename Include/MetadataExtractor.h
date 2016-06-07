@@ -23,14 +23,14 @@
 #define BYTE_ORDER_MOTOROLA 1
 
 // Byte-Swap-for-16-bits reference: http://stackoverflow.com/a/2182184/6052290
-uint16_t getShort
+ExifShort getShort
 (
     void *pShort,
     int fileByteOrder
 );
 
 // Byte-Swap-for-32-bits reference: http://stackoverflow.com/a/2182184/6052290
-uint32_t getLong
+ExifLong getLong
 (
     void *pLong,
     int fileByteOrder
@@ -73,7 +73,7 @@ void readIFD
 (
     MetadataAttributesContainer *pAttributeContainer,
     char *pAPP1Segment,
-    uint32_t offset,
+    ExifLong offset,
     int32_t fileByteOrder
 );
 
