@@ -1,5 +1,5 @@
 //
-// ExifExtractC
+// JPEGMetaExtractor
 // Include/ExifTypes.h
 //
 #ifndef __EXIFEXTRACTC_EXIFTYPES_H__

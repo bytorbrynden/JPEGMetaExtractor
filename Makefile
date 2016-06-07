@@ -1,5 +1,5 @@
 #
-# ExifExtractC/Makefile
+# JPEGMetaExtractor/Makefile
 #
 NAME := exifextract
 ROOT := ${CURDIR}

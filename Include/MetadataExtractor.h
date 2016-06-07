@@ -1,9 +1,9 @@
 //
-// ExifExtractC
+// JPEGMetaExtractor
 // Include/MetadataExtractor.h
 //
-#ifndef __EXIFEXTRACTC_METADATAEXTRACTOR_H__
-#define __EXIFEXTRACTC_METADATAEXTRACTOR_H__
+#ifndef __JPEGMETAEXTRACTOR_METADATAEXTRACTOR_H__
+#define __JPEGMETAEXTRACTOR_METADATAEXTRACTOR_H__
 
 #include <stdio.h>
 #include <stdint.h>

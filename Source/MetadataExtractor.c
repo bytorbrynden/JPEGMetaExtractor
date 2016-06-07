@@ -1,5 +1,5 @@
 //
-// ExifExtractC
+// JPEGMetaExtractor
 // Source/MetadataExtractor.c
 //
 #include "MetadataExtractor.h"
