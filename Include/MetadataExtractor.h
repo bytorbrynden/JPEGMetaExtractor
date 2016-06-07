@@ -64,12 +64,14 @@ char *getExifAttributeInfoSegment
 
 void parseExifAttributeInfoSegment
 (
+    MetadataAttributesContainer *pAttributeContainer,
     char *pAttributeInfoSegment,
     int32_t fileByteOrder
 );
 
 void readIFD
 (
+    MetadataAttributesContainer *pAttributeContainer,
     char *pAPP1Segment,
     uint32_t offset,
     int32_t fileByteOrder
@@ -77,6 +79,7 @@ void readIFD
 
 void processTag
 (
+    MetadataAttributesContainer *pAttributeContainer,
     void *pTag,
     int32_t fileByteOrder
 );

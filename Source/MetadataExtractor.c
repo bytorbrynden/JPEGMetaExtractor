@@ -132,7 +132,7 @@ MetadataAttributesContainer *extractMetadata
     
     // We will now attempt to "parse" the APP1 segment. In doing so, we will
     //  be able to pull values from it.
-    parseExifAttributeInfoSegment(pAppSeg1, fileByteOrder);
+    parseExifAttributeInfoSegment(pMetadataContainer, pAppSeg1, fileByteOrder);
     
     free(pAppSeg1);
     
@@ -373,6 +373,7 @@ char *getExifAttributeInfoSegment
 
 void parseExifAttributeInfoSegment
 (
+    MetadataAttributesContainer *pAttributeContainer,
     char *pAttributeInfoSegment,
     int32_t fileByteOrder
 )
@@ -394,11 +395,12 @@ void parseExifAttributeInfoSegment
     exifOffset += getLong((pAttributeInfoSegment + (exifOffset + 0x6)),
         fileByteOrder);
         
-    readIFD(pAttributeInfoSegment, exifOffset, fileByteOrder);
+    readIFD(pAttributeContainer, pAttributeInfoSegment, exifOffset, fileByteOrder);
 }
 
 void readIFD
 (
+    MetadataAttributesContainer *pAttributeContainer,
     char *pAPP1Segment,
     uint32_t offset,
     int32_t fileByteOrder
@@ -420,7 +422,7 @@ void readIFD
     
     for (int i = 0; i < numEntries; ++i)
     {
-        processTag((pAPP1Segment + offset), fileByteOrder);
+        processTag(pAttributeContainer, (pAPP1Segment + offset), fileByteOrder);
         
         // Every IFD entry uses a total of 12 bytes of space. To make sure our
         //  offset is correct for every entry after this, we'll increase it by
@@ -431,10 +433,13 @@ void readIFD
 
 void processTag
 (
+    MetadataAttributesContainer *pAttributeContainer,
     void *pTag,
     int32_t fileByteOrder
 )
 {
+    MetadataAttribute *pAttribute = NULL;
+    
     uint16_t tagMarker = getShort((pTag), fileByteOrder);
     uint16_t tagType   = getShort((pTag + 2), fileByteOrder);
     uint32_t tagCount  = getLong((pTag + 4), fileByteOrder);
@@ -442,12 +447,14 @@ void processTag
     
     // uint32_t tagValueOffset = 0x8;
     
-    printf("{\n");
-        printf("\tTag  : %04x\n", tagMarker);
-        printf("\tType : %d\n", tagType);
-        printf("\tCount: %d\n", tagCount);
-        printf("\tBytes: %d\n", tagBytes);
-    printf("}\n");
+    pAttribute = pAttributeContainer->getAttributeByTag(pAttributeContainer, tagMarker);
     
-    // TODO...
+    printf("{\n");
+    if (NULL != pAttribute)
+        printf("\tTag   : %s\n", pAttribute->pName);
+        printf("\tMarker: %04x\n", tagMarker);
+        printf("\tType  : %d\n", tagType);
+        printf("\tCount : %d\n", tagCount);
+        printf("\tBytes : %d\n", tagBytes);
+    printf("}\n");
 }
