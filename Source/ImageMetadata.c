@@ -38,6 +38,14 @@ void deallocateMetadataAttributesContainer
         NULL == pContainer->pAttributes)
         return;
     
+    for (size_t attrIndex = 0; attrIndex < pContainer->attributesAllocated;
+        ++attrIndex)
+    {
+        if (NULL != (pContainer->pAttributes + attrIndex))
+            if (NULL != ((pContainer->pAttributes + attrIndex))->pValue)
+                free(((pContainer->pAttributes + attrIndex))->pValue);
+    }
+    
     free(pContainer->pAttributes);
     free(pContainer);
 }
