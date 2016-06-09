@@ -422,39 +422,119 @@ void readIFD
     
     for (int i = 0; i < numEntries; ++i)
     {
-        processTag(pAttributeContainer, (pAPP1Segment + offset), fileByteOrder);
+        processAttribute(pAttributeContainer, pAPP1Segment,
+            (pAPP1Segment + offset), fileByteOrder);
         
         // Every IFD entry uses a total of 12 bytes of space. To make sure our
         //  offset is correct for every entry after this, we'll increase it by
         //  12 bytes.
-        offset += 12;
+        offset += 0xC;
     }
 }
 
-void processTag
+bool processAttribute
 (
-    MetadataAttributesContainer *pAttributeContainer,
-    void *pTag,
+    MetadataAttributesContainer *pAttributesContainer,
+    char *pAttributeInfoSegment,
+    void *pAttribute,
     int32_t fileByteOrder
 )
 {
-    MetadataAttribute *pAttribute = NULL;
+    MetadataAttribute *pMetadataAttribute = NULL;
     
-    ExifShort tagMarker = getShort((pTag), fileByteOrder);
-    ExifShort tagType   = getShort((pTag + 2), fileByteOrder);
-    ExifLong tagCount  = getLong((pTag + 4), fileByteOrder);
-    ExifShort tagBytes  = getTypeBytes(tagType) * tagCount;
+    ExifShort attributeTag   = getShort(pAttribute, fileByteOrder);
+    ExifShort attributeType  = getShort(pAttribute + 2, fileByteOrder);
+    ExifLong attributeCount  = getLong(pAttribute + 4, fileByteOrder);
+    ExifShort attributeBytes = getTypeBytes(attributeType) * attributeCount;
     
-    // uint32_t tagValueOffset = 0x8;
+    // Here, we're going to try and get a pointer to the structure for the
+    //  attribute that matches the specified tag. We'll store the attribute's
+    //  value in this structure once we've captured it.
+    pMetadataAttribute = pAttributesContainer->getAttributeByTag(
+        pAttributesContainer,
+        attributeTag
+    );
     
-    pAttribute = pAttributeContainer->getAttributeByTag(pAttributeContainer, tagMarker);
+    // The 'getAttributeByTag' function will return NULL if it can't find an
+    //  attribute that is marked with the specified tag. This will happen
+    //  whenever we try and get an attribute that hasn't been registered with
+    //  the container.
+    //
+    // We'll exit the function, and return 'false' if this is the case.
+    if (NULL == pMetadataAttribute)
+        return false;
     
-    printf("{\n");
-    if (NULL != pAttribute)
-        printf("\tTag   : %s\n", pAttribute->pName);
-        printf("\tMarker: %04x\n", tagMarker);
-        printf("\tType  : %d\n", tagType);
-        printf("\tCount : %d\n", tagCount);
-        printf("\tBytes : %d\n", tagBytes);
-    printf("}\n");
+    // If the value for this attribute fits within 4 bytes, the value will be
+    //  located 8 bytes from the start of this attribute.
+    //
+    // If the value for this attribute needs more than 4 bytes, the value will
+    //  be located at an offset from the start of the TIFF header. This offset
+    //  will be located 8 bytes from the start of the attribute.
+    if (4 >= attributeBytes)
+    {
+        pMetadataAttribute->pValue = getAttributeValue(
+            (pAttribute + 8),
+            attributeBytes,
+            attributeType,
+            fileByteOrder
+        );
+    }
+    else
+    {
+        pMetadataAttribute->pValue = getAttributeValue(
+            ((pAttributeInfoSegment + 0x8) + getLong(pAttribute + 0x8, fileByteOrder)),
+            attributeBytes,
+            attributeType,
+            fileByteOrder
+        );
+    }
+    
+    return true;
+}
+
+void *getAttributeValue
+(
+    void *pValueStart,
+    ExifShort valueBytes,
+    ExifShort valueType,
+    int32_t fileByteOrder
+)
+{
+    void *pValue = NULL;
+    
+    // If the pointer to the start of the value is NULL, we won't be able to do
+    //  anything else, therefore we'll exit the function without doing anything.
+    if (NULL == pValueStart)
+        return NULL;
+    
+    // To simplify this a bit, we're going to go ahead and allocate some memory
+    //  that we'll 'memcpy' values to, later on.
+    pValue = malloc(valueBytes);
+    
+    // Just a note, we're not using a switch/case here, because we might need
+    //  to be able to declare variables, which we won't be able to do within
+    //  a switch/case.
+    if (EXIF_BYTE == valueType || EXIF_ASCII == valueType)
+    {
+        memcpy(pValue, pValueStart, valueBytes);
+    }
+    else if (EXIF_SHORT == valueType)
+    {
+        // TODO...
+    }
+    else if (EXIF_LONG == valueType)
+    {
+        // TODO...
+    }
+    else if (EXIF_RATIONAL == valueType)
+    {
+        ExifRational rational;
+        
+        rational.numerator   = getLong(pValueStart, fileByteOrder);
+        rational.denominator = getLong(pValueStart + 4, fileByteOrder);
+        
+        memcpy(pValue, &rational, valueBytes);
+    }
+    
+    return pValue;
 }

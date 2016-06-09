@@ -16,6 +16,7 @@
 typedef struct metadataAttribute
 {
     const char *pName;
+    void *pValue;
 
     uint16_t tag;
     uint16_t type;

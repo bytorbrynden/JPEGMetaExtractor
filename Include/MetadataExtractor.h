@@ -77,10 +77,19 @@ void readIFD
     int32_t fileByteOrder
 );
 
-void processTag
+bool processAttribute
 (
-    MetadataAttributesContainer *pAttributeContainer,
-    void *pTag,
+    MetadataAttributesContainer *pAttributesContainer,
+    char *pAttributeInfoSegment,
+    void *pAttribute,
+    int32_t fileByteOrder
+);
+
+void *getAttributeValue
+(
+    void *pValueStart,
+    ExifShort valueBytes,
+    ExifShort valueType,
     int32_t fileByteOrder
 );
 
