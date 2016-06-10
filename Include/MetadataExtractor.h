@@ -69,19 +69,36 @@ void parseExifAttributeInfoSegment
     int32_t fileByteOrder
 );
 
-void readIFD
+// void readIFD
+// (
+//     MetadataAttributesContainer *pAttributeContainer,
+//     char *pAPP1Segment,
+//     ExifLong offset,
+//     int32_t fileByteOrder
+// );
+
+bool processImageFileDirectory
 (
-    MetadataAttributesContainer *pAttributeContainer,
-    char *pAPP1Segment,
-    ExifLong offset,
+    MetadataAttributesContainer *pAttributesContainer,
+    char *pDirectory,
+    uint32_t offsetFromTIFF,
     int32_t fileByteOrder
 );
+
+// bool processAttribute
+// (
+//     MetadataAttributesContainer *pAttributesContainer,
+//     char *pAttributeInfoSegment,
+//     void *pAttribute,
+//     int32_t fileByteOrder
+// );
 
 bool processAttribute
 (
     MetadataAttributesContainer *pAttributesContainer,
-    char *pAttributeInfoSegment,
-    void *pAttribute,
+    char *pIFD,
+    void *pAttributeStart,
+    uint32_t offsetFromTIFF,
     int32_t fileByteOrder
 );
 
