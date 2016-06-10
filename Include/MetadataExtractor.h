@@ -77,6 +77,12 @@ void parseExifAttributeInfoSegment
 //     int32_t fileByteOrder
 // );
 
+uint32_t getImageFileDirectoryLength
+(
+    char *pDirectory,
+    int32_t fileByteOrder
+);
+
 bool processImageFileDirectory
 (
     MetadataAttributesContainer *pAttributesContainer,

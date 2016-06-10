@@ -455,6 +455,18 @@ void parseExifAttributeInfoSegment
 //     }
 // }
 
+uint32_t getImageFileDirectoryLength
+(
+    char *pDirectory,
+    int32_t fileByteOrder
+)
+{
+    if (NULL == pDirectory)
+        return 0x0;
+    
+    return (0x2 + (getShort((pDirectory + 0x2), fileByteOrder) * 0xC));
+}
+
 bool processImageFileDirectory
 (
     MetadataAttributesContainer *pAttributesContainer,
