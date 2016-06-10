@@ -394,8 +394,7 @@ void parseExifAttributeInfoSegment
     //  and add it to our existing offset, here.
     exifOffset += getLong((pAttributeInfoSegment + (exifOffset + 0x6)),
         fileByteOrder);
-        
-    // readIFD(pAttributeContainer, pAttributeInfoSegment, exifOffset, fileByteOrder);
+    
     
     processImageFileDirectory(
         pAttributeContainer,
@@ -404,56 +403,6 @@ void parseExifAttributeInfoSegment
         fileByteOrder
     );
 }
-
-// void readIFD
-// (
-//     MetadataAttributesContainer *pAttributeContainer,
-//     char *pAPP1Segment,
-//     ExifLong offset,
-//     int32_t fileByteOrder
-// )
-// {
-//     // If the segment that we're passed, is NULL, then we're going to exit,
-//     //  because we can't do anything else.
-//     if (NULL == pAPP1Segment)
-//         return;
-    
-//     // The first two bytes of every IFD, are used to specify the number of
-//     //  entries that said IFD contains. We'll fetch that value, here. We'll also
-//     //  increase our offset by 2 bytes, to skip the number of entries value
-//     //  later on.
-//     ExifShort numEntries = getShort((pAPP1Segment + offset), fileByteOrder);
-//     offset += 0x4;
-    
-//     printf("Number of Entries: %d\n", numEntries);
-    
-//     for (int i = 0; i < numEntries; ++i)
-//     {
-//         processAttribute(pAttributeContainer, pAPP1Segment,
-//             (pAPP1Segment + offset), fileByteOrder);
-        
-//         // Every IFD entry uses a total of 12 bytes of space. To make sure our
-//         //  offset is correct for every entry after this, we'll increase it by
-//         //  12 bytes.
-//         offset += 0xC;
-//     }
-    
-//     // If this is the root IFD, there should be two more attributes, which
-//     //  contain offsets to the EXIF IFD, and the GPS IFD.
-//     ExifShort nextIFD = getShort(pAPP1Segment + offset, fileByteOrder);
-        
-//     if (0x0 != nextIFD)
-//     {
-//         printf("Next IFD Marker: %04x\n", nextIFD);
-        
-//         readIFD(
-//             pAttributeContainer,
-//             pAPP1Segment,
-//             0x8 + getLong(pAPP1Segment + (offset + 8), fileByteOrder),
-//             fileByteOrder
-//         );
-//     }
-// }
 
 uint32_t getImageFileDirectoryLength
 (
@@ -502,64 +451,6 @@ bool processImageFileDirectory
     //  IFD, contain the actual attributes.
     for (int attributeIndex = 0; attributeIndex < entryCount; ++attributeIndex)
     {
-        // MetadataAttribute *pAttribute = NULL;
-        
-        // ExifShort attributeTag        = 0x0;
-        // ExifShort attributeType       = 0x0;
-        // ExifLong attributeCount       = 0x0;
-        // ExifLong attributeValueBytes  = 0x0;
-        // ExifLong attributeValueOffset = 0x0;
-        
-        // // The first 2 bytes of the attribute, are used to specify the
-        // //  attribute's tag, which is what we'll use to identify the attribute.
-        // attributeTag = getShort((pDirectory + (offset + 0x0)), fileByteOrder);
-        
-        // // The next 2 bytes of the attribute, are used to specify the
-        // //  attribute's type, which is something we need to know.
-        // attributeType = getShort((pDirectory + (offset + 0x2)), fileByteOrder);
-        
-        // // The next 4 bytes of the attribute, specify the "count of values" for
-        // //  this attribute. The count of values, is not the number of bytes,
-        // //  instead, it's the count of values that match this attribute's type.
-        // attributeCount = getLong((pDirectory + (offset + 0x4)), fileByteOrder);
-        
-        // // We can compute the number of bytes that this attribute's value will
-        // //  use, by multiplying the size of the attribute's type, by the number
-        // //  of values.
-        // attributeValueBytes = getTypeBytes(attributeType) * attributeCount;
-        
-        // // The final 4 bytes of the attribute, will hold either the attribute's
-        // //  value, or an offset to the attribute's value.
-        // //
-        // // If the attribute's value will fit within 4 bytes, these 4 bytes will
-        // //  contain the actual value. If the attribute's value won't fit in 4
-        // //  bytes, these 4 bytes will contain an offset to the attribute's value.
-        // if (4 >= attributeValueBytes)
-        // {
-        //     attributeValueOffset = (offset + 0x8);
-        // }
-        // else
-        // {
-        //     uint32_t fullOffset = getLong((pDirectory + (offset + 0x8)),
-        //         fileByteOrder);
-                
-        //     attributeValueOffset = fullOffset - offsetFromTIFF;
-        // }
-        
-        // // Now that we've captured all the values that describe this attribute,
-        // //  we're going to (try to) get an attribute that matches this tag,
-        // //  from the attributes container.
-        // pAttribute = pAttributesContainer->getAttributeByTag(
-        //     pAttributesContainer, attributeTag);
-        
-        // // The 'getAttributeByTag' function returns NULL if it wasn't able to
-        // //  find an attribute that matches the specified tag. If it doesn't
-        // //  return NULL, that means an attribute with this tag, was registered.
-        // if (NULL != pAttribute)
-        // {
-        //     // TODO...
-        // }
-        
         // Now, we're going to process this attribute. When we process an
         //  attribute, we're basically doing everything that needs to be done
         //  to capture this attribute's value.
