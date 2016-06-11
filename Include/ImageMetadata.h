@@ -13,6 +13,9 @@
 
 #include "ExifTypes.h"
 
+#define ATTRIBUTE_SPECIALTY_NORMAL 0x0
+#define ATTRIBUTE_SPECIALTY_IFD_OFFSET 0x1
+
 typedef struct metadataAttribute
 {
     const char *pName;
@@ -20,6 +23,8 @@ typedef struct metadataAttribute
 
     uint16_t tag;
     uint16_t type;
+    
+    int specialty;
 } MetadataAttribute;
 
 struct metadataAttributesContainer;
@@ -35,7 +40,8 @@ typedef struct metadataAttributesContainer
         struct metadataAttributesContainer *pSelf,
         const char *pAttributeName,
         uint16_t attributeTag,
-        uint16_t attributeType
+        uint16_t attributeType,
+        int attributeSpecialty
     );
     
     MetadataAttribute *(*getAttributeByTag)
@@ -62,7 +68,8 @@ MetadataAttribute createAttribute
 (
     const char *pAttributeName,
     uint16_t attributeTag,
-    uint16_t attributeType
+    uint16_t attributeType,
+    int attributeSpecialty
 );
 
 void addAttribute
@@ -70,7 +77,8 @@ void addAttribute
     MetadataAttributesContainer *pSelf,
     const char *pAttributeName,
     uint16_t attributeTag,
-    uint16_t attributeType
+    uint16_t attributeType,
+    int attributeSpecialty
 );
 
 MetadataAttribute *getAttributeByTag

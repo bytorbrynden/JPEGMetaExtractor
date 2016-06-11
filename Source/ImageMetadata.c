@@ -19,12 +19,23 @@ MetadataAttributesContainer *allocateMetadataAttributesContainer()
     pContainer->getAttributeByName = getAttributeByName;
     
     // Register attributes
-    pContainer->addAttribute(pContainer, "Make",           0x010F, EXIF_ASCII);
-    pContainer->addAttribute(pContainer, "Model",          0x0110, EXIF_ASCII);
-    pContainer->addAttribute(pContainer, "XResolution",    0x011A, EXIF_RATIONAL);
-    pContainer->addAttribute(pContainer, "YResolution",    0x011B, EXIF_RATIONAL);
-    pContainer->addAttribute(pContainer, "ResolutionUnit", 0x0128, EXIF_SHORT);
-    pContainer->addAttribute(pContainer, "Software",       0x0131, EXIF_ASCII);
+    pContainer->addAttribute(pContainer, "Make",             0x010F, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
+    pContainer->addAttribute(pContainer, "Model",            0x0110, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
+    pContainer->addAttribute(pContainer, "XResolution",      0x011A, EXIF_RATIONAL, ATTRIBUTE_SPECIALTY_NORMAL);
+    pContainer->addAttribute(pContainer, "YResolution",      0x011B, EXIF_RATIONAL, ATTRIBUTE_SPECIALTY_NORMAL);
+    pContainer->addAttribute(pContainer, "ResolutionUnit",   0x0128, EXIF_SHORT,    ATTRIBUTE_SPECIALTY_NORMAL);
+    pContainer->addAttribute(pContainer, "Software",         0x0131, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
+    pContainer->addAttribute(pContainer, "DateTimeOriginal", 0x9003, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
+    
+    // pContainer->addAttribute(pContainer, "GPSLatitudeRef",   0x0001, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
+    pContainer->addAttribute(pContainer, "GPSLatitude",      0x0002, EXIF_RATIONAL, ATTRIBUTE_SPECIALTY_NORMAL);
+    // pContainer->addAttribute(pContainer, "GPSLongitudeRef",  0x0003, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
+    pContainer->addAttribute(pContainer, "GPSLongitude",     0x0004, EXIF_RATIONAL, ATTRIBUTE_SPECIALTY_NORMAL);
+    // pContainer->addAttribute(pContainer, "GPSAltitudeRef",   0x0005, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
+    pContainer->addAttribute(pContainer, "GPSAltitude",      0x0006, EXIF_RATIONAL, ATTRIBUTE_SPECIALTY_NORMAL);
+    
+    pContainer->addAttribute(pContainer, "ExifIFDOffset",    0x8769, EXIF_LONG,     ATTRIBUTE_SPECIALTY_IFD_OFFSET);
+    pContainer->addAttribute(pContainer, "GPSIFDOffset",     0x8825, EXIF_LONG,     ATTRIBUTE_SPECIALTY_IFD_OFFSET);
     
     return pContainer;
 }
@@ -54,14 +65,16 @@ MetadataAttribute createAttribute
 (
     const char *pAttributeName,
     uint16_t attributeTag,
-    uint16_t attributeType
+    uint16_t attributeType,
+    int attributeSpecialty
 )
 {
     MetadataAttribute attribute;
     
-    attribute.pName = pAttributeName;
-    attribute.tag   = attributeTag;
-    attribute.type  = attributeType;
+    attribute.pName     = pAttributeName;
+    attribute.tag       = attributeTag;
+    attribute.type      = attributeType;
+    attribute.specialty = attributeSpecialty;
     
     return attribute;
 }
@@ -71,7 +84,8 @@ void addAttribute
     MetadataAttributesContainer *pSelf,
     const char *pAttributeName,
     uint16_t attributeTag,
-    uint16_t attributeType
+    uint16_t attributeType,
+    int attributeSpecialty
 )
 {
     // If either of the following variables are non-existant (or NULL), we're
@@ -89,7 +103,8 @@ void addAttribute
         sizeof(MetadataAttribute) * (pSelf->attributesAllocated + 1)
     );
     
-    *(pSelf->pAttributes + pSelf->attributesAllocated) = createAttribute(pAttributeName, attributeTag, attributeType);
+    *(pSelf->pAttributes + pSelf->attributesAllocated) = createAttribute(
+        pAttributeName, attributeTag, attributeType, attributeSpecialty);
     
     // Increase the value of the variable that keeps track of how many attributes
     //  we've allocated space for.
