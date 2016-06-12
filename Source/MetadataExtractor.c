@@ -534,7 +534,8 @@ bool processAttribute
     ExifShort attributeType       = 0x0;
     ExifLong attributeCount       = 0x0;
     ExifLong attributeValueBytes  = 0x0;
-    ExifLong attributeValueOffset = 0x0;
+    char *pAttributeValue         = NULL;
+    // ExifLong attributeValueOffset = 0x0;
     
     if (NULL == pAttributesContainer || NULL == pIFD || NULL == pAttributeStart)
         return false;
@@ -567,13 +568,15 @@ bool processAttribute
     //  bytes, these 4 bytes will contain an offset to the attribute's value.
     if (4 >= attributeValueBytes)
     {
-        attributeValueOffset = 0x8;
+        // attributeValueOffset = 0x8;
+        pAttributeValue = (pAttributeStart + 0x8);
     }
     else
     {
         uint32_t fullOffset = getLong((pAttributeStart + 0x8), fileByteOrder);
         
-        attributeValueOffset = (fullOffset + 0x8) - offsetFromTIFF;
+        // attributeValueOffset = (fullOffset + 0x8) - offsetFromTIFF;
+        pAttributeValue = (pIFD + (fullOffset + 0x8) - offsetFromTIFF);
     }
     
     // Now that we've captured all the values that describe this attribute,
@@ -587,33 +590,16 @@ bool processAttribute
     //  return NULL, that means an attribute with this tag, was registered.
     if (NULL != pMetadataAttribute)
     {
-        printf("%s (%04x): ", pMetadataAttribute->pName, attributeTag);
-        
         pMetadataAttribute->pValue = getAttributeValue(
-            (pIFD + attributeValueOffset),
+            // (pIFD + attributeValueOffset),
+            pAttributeValue,
             attributeValueBytes,
             attributeType,
+            attributeCount,
             fileByteOrder
         );
         
-        // This is a test, only a test. All I want to do, is make sure I got the
-        //  right values.
-        switch (attributeType)
-        {
-            case EXIF_ASCII:
-                printf("%s", (char *) pMetadataAttribute->pValue);
-                break;
-            
-            case EXIF_RATIONAL:
-                printf("%u/%u", ((ExifRational *) pMetadataAttribute->pValue)->numerator, ((ExifRational *) pMetadataAttribute->pValue)->denominator);
-                break;
-            
-            default:
-                printf("Not captured");
-                break;
-        }
-        
-        printf("\n");
+        // TODO: Create a 'printEXIFAttribute' function.
     }
     
     return true;
@@ -624,6 +610,7 @@ void *getAttributeValue
     void *pValueStart,
     ExifShort valueBytes,
     ExifShort valueType,
+    ExifLong valueCount,
     int32_t fileByteOrder
 )
 {
@@ -638,29 +625,59 @@ void *getAttributeValue
     //  that we'll 'memcpy' values to, later on.
     pValue = malloc(valueBytes);
     
-    // Just a note, we're not using a switch/case here, because we might need
-    //  to be able to declare variables, which we won't be able to do within
-    //  a switch/case.
-    if (EXIF_BYTE == valueType || EXIF_ASCII == valueType)
+    for (int valueIndex = 0; valueIndex < valueCount; ++valueIndex)
     {
-        memcpy(pValue, pValueStart, valueBytes);
-    }
-    else if (EXIF_SHORT == valueType)
-    {
-        // TODO...
-    }
-    else if (EXIF_LONG == valueType)
-    {
-        // TODO...
-    }
-    else if (EXIF_RATIONAL == valueType)
-    {
-        ExifRational rational;
+        int typeBytes = getTypeBytes(valueType);
+        int offsetToValue = typeBytes * valueIndex;
         
-        rational.numerator   = getLong(pValueStart, fileByteOrder);
-        rational.denominator = getLong(pValueStart + 4, fileByteOrder);
+        // Just a note, we're not using a switch/case here, because we might
+        //  need to be able to declare variables, which we cannot do within
+        //  a switch/case statement.
+        if (EXIF_BYTE == valueType || EXIF_ASCII == valueType)
+        {
+            memcpy(pValue + offsetToValue, pValueStart + offsetToValue,
+                typeBytes);
+        }
+        else if (EXIF_RATIONAL == valueType)
+        {
+            ExifRational currentRational;
+            
+            currentRational.numerator = getLong(
+                (pValueStart + (offsetToValue + 0x0)),
+                fileByteOrder
+            );
+            currentRational.denominator = getLong(
+                (pValueStart + (offsetToValue + 0x4)),
+                fileByteOrder
+            );
+            
+            memcpy(pValue + offsetToValue, &currentRational, typeBytes);
+        }
         
-        memcpy(pValue, &rational, valueBytes);
+        // Just a note, we're not using a switch/case here, because we might need
+        //  to be able to declare variables, which we won't be able to do within
+        //  a switch/case.
+        // if (EXIF_BYTE == valueType || EXIF_ASCII == valueType)
+        // {
+        //     memcpy(pValue, pValueStart, valueBytes);
+        // }
+        // else if (EXIF_SHORT == valueType)
+        // {
+        //     // TODO...
+        // }
+        // else if (EXIF_LONG == valueType)
+        // {
+        //     // TODO...
+        // }
+        // else if (EXIF_RATIONAL == valueType)
+        // {
+        //     ExifRational rational;
+            
+        //     rational.numerator   = getLong(pValueStart, fileByteOrder);
+        //     rational.denominator = getLong(pValueStart + 4, fileByteOrder);
+            
+        //     memcpy(pValue, &rational, valueBytes);
+        // }
     }
     
     return pValue;

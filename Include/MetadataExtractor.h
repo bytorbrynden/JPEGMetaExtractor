@@ -97,6 +97,7 @@ void *getAttributeValue
     void *pValueStart,
     ExifShort valueBytes,
     ExifShort valueType,
+    ExifLong valueCount,
     int32_t fileByteOrder
 );
 
