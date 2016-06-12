@@ -101,4 +101,9 @@ void *getAttributeValue
     int32_t fileByteOrder
 );
 
+void printAttribute
+(
+    MetadataAttribute *pAttribute
+);
+
 #endif

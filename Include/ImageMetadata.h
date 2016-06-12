@@ -23,6 +23,7 @@ typedef struct metadataAttribute
 
     uint16_t tag;
     uint16_t type;
+    uint16_t count;
     
     int specialty;
 } MetadataAttribute;

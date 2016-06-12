@@ -395,39 +395,12 @@ void parseExifAttributeInfoSegment
     exifOffset += getLong((pAttributeInfoSegment + (exifOffset + 0x6)),
         fileByteOrder);
     
-    // uint32_t zerothIFDLength = getImageFileDirectoryLength(
-    //     (pAttributeInfoSegment + (exifOffset - 0x2)), fileByteOrder);
-    
     processImageFileDirectory(
         pAttributeContainer,
         (pAttributeInfoSegment + exifOffset),
         exifOffset,
         fileByteOrder
     );
-    
-    // According to the Exif specification, there are two more attributes
-    //  contained within the 0th IFD. These are private-tag-offset attributes,
-    //  and are used to specify the offset(s) to various other IFDs. We want to
-    //  be able to access the Exif IFD, and the GPS IFD.
-    // uint32_t exifIFDPrivateTagOffsetAttributeTag = getShort(
-    //     (pAttributeInfoSegment + exifOffset) + zerothIFDLength, fileByteOrder);
-    // ExifLong exifIFDPrivateTagOffsetAttributeValue = getLong(
-    //     ((pAttributeInfoSegment + exifOffset) + zerothIFDLength) + 0x8,
-    //     fileByteOrder
-    // );
-    
-    // exifOffset = 0x6 + exifIFDPrivateTagOffsetAttributeValue;
-    
-    // uint32_t exifIFDLength = getImageFileDirectoryLength((pAttributeInfoSegment + exifOffset), fileByteOrder);
-    
-    // printf("%04x : %u\n", exifIFDPrivateTagOffsetAttributeTag, exifIFDLength);
-    
-    // processImageFileDirectory(
-    //     pAttributeContainer,
-    //     (pAttributeInfoSegment + exifOffset),
-    //     exifOffset,
-    //     fileByteOrder
-    // );
 }
 
 uint32_t getImageFileDirectoryLength
@@ -459,13 +432,9 @@ bool processImageFileDirectory
         return false;
     
     // The first 2 bytes of every IFD are used to specify the marker for said
-    //  IFD. The marker is what we use to identify IFDs. We'll capture that
-    //  marker, here. Once the marker has been captured, we'll increase our
-    //  offset, by 2.
-    // ExifShort marker = getShort((pDirectory + offset), fileByteOrder);
+    //  IFD. The marker is what we use to identify IFDs. We'll increase our
+    //  offset by 2, because we don't need to do anything with the marker.
     offset += 0x2;
-    
-    // printf("IFD Marker: %04x\n", marker);
     
     // The next 2 bytes in the IFD, are used to specify the number of entries
     //  this IFD contains. We'll capture that count, and increase our offset
@@ -535,7 +504,6 @@ bool processAttribute
     ExifLong attributeCount       = 0x0;
     ExifLong attributeValueBytes  = 0x0;
     char *pAttributeValue         = NULL;
-    // ExifLong attributeValueOffset = 0x0;
     
     if (NULL == pAttributesContainer || NULL == pIFD || NULL == pAttributeStart)
         return false;
@@ -568,14 +536,12 @@ bool processAttribute
     //  bytes, these 4 bytes will contain an offset to the attribute's value.
     if (4 >= attributeValueBytes)
     {
-        // attributeValueOffset = 0x8;
         pAttributeValue = (pAttributeStart + 0x8);
     }
     else
     {
         uint32_t fullOffset = getLong((pAttributeStart + 0x8), fileByteOrder);
         
-        // attributeValueOffset = (fullOffset + 0x8) - offsetFromTIFF;
         pAttributeValue = (pIFD + (fullOffset + 0x8) - offsetFromTIFF);
     }
     
@@ -590,8 +556,8 @@ bool processAttribute
     //  return NULL, that means an attribute with this tag, was registered.
     if (NULL != pMetadataAttribute)
     {
+        pMetadataAttribute->count  = attributeCount;
         pMetadataAttribute->pValue = getAttributeValue(
-            // (pIFD + attributeValueOffset),
             pAttributeValue,
             attributeValueBytes,
             attributeType,
@@ -599,7 +565,7 @@ bool processAttribute
             fileByteOrder
         );
         
-        // TODO: Create a 'printEXIFAttribute' function.
+        printAttribute(pMetadataAttribute);
     }
     
     return true;
@@ -653,32 +619,39 @@ void *getAttributeValue
             
             memcpy(pValue + offsetToValue, &currentRational, typeBytes);
         }
-        
-        // Just a note, we're not using a switch/case here, because we might need
-        //  to be able to declare variables, which we won't be able to do within
-        //  a switch/case.
-        // if (EXIF_BYTE == valueType || EXIF_ASCII == valueType)
-        // {
-        //     memcpy(pValue, pValueStart, valueBytes);
-        // }
-        // else if (EXIF_SHORT == valueType)
-        // {
-        //     // TODO...
-        // }
-        // else if (EXIF_LONG == valueType)
-        // {
-        //     // TODO...
-        // }
-        // else if (EXIF_RATIONAL == valueType)
-        // {
-        //     ExifRational rational;
-            
-        //     rational.numerator   = getLong(pValueStart, fileByteOrder);
-        //     rational.denominator = getLong(pValueStart + 4, fileByteOrder);
-            
-        //     memcpy(pValue, &rational, valueBytes);
-        // }
     }
     
     return pValue;
+}
+
+void printAttribute
+(
+    MetadataAttribute *pAttribute
+)
+{
+    // If we didn't get an attribute passed to us, we're going to exit, because
+    //  there's nothing for us to print.
+    if (NULL == pAttribute)
+        return;
+    
+    printf("%s (%04x): ", pAttribute->pName, pAttribute->tag);
+    
+    for (int valueIndex = 0; valueIndex < pAttribute->count; ++valueIndex)
+    {
+        int offset = getTypeBytes(pAttribute->type) * valueIndex;
+        
+        if (EXIF_ASCII == pAttribute->type)
+        {
+            printf("%c", *(((char *) pAttribute->pValue) + offset));
+        }
+        else if (EXIF_RATIONAL == pAttribute->type)
+        {
+            ExifRational rationalValue = *((ExifRational *) pAttribute->pValue
+                + offset);
+            
+            printf("%u/%u ", rationalValue.numerator, rationalValue.denominator);
+        }
+    }
+    
+    printf("\n");
 }

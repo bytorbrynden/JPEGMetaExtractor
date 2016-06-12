@@ -75,6 +75,7 @@ MetadataAttribute createAttribute
     attribute.pName     = pAttributeName;
     attribute.tag       = attributeTag;
     attribute.type      = attributeType;
+    attribute.count     = 0;
     attribute.specialty = attributeSpecialty;
     
     return attribute;
