@@ -19,8 +19,14 @@
 typedef struct metadataAttribute
 {
     const char *pName;
-    void *pValue;
-
+    // void *pValue;
+    
+    union
+    {
+        char *pAsciiValues;
+        ExifRational *pRationalValues;
+    };
+    
     uint16_t tag;
     uint16_t type;
     uint16_t count;

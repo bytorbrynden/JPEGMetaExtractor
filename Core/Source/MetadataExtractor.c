@@ -565,7 +565,25 @@ bool processAttribute
         );
         
         pMetadataAttribute->count  = attributeCount;
-        pMetadataAttribute->pValue = pCapturedAttributeValue;
+        // pMetadataAttribute->pValue = pCapturedAttributeValue;
+        
+        switch (attributeType)
+        {
+            case EXIF_ASCII:
+                pMetadataAttribute->pAsciiValues = (
+                    (char *) pCapturedAttributeValue
+                );
+                break;
+            
+            case EXIF_RATIONAL:
+                pMetadataAttribute->pRationalValues = (
+                    (ExifRational *) pCapturedAttributeValue
+                );
+                break;
+            
+            default:
+                break;
+        }
         
         free(pCapturedAttributeValue);
         
@@ -613,18 +631,32 @@ void *getAttributeValue
         int offsetToExifValue     = getTypeBytes(valueType) * valueIndex;
         int offsetToCapturedValue = typeSize * valueIndex;
         
-        if (EXIF_BYTE == valueType || EXIF_ASCII == valueType)
+        if (EXIF_ASCII == valueType)
         {
-            memcpy((pValue + offsetToCapturedValue), (pValueStart + offsetToExifValue), typeSize);
+            memcpy(
+                (pValue + offsetToCapturedValue),
+                (pValueStart + offsetToExifValue),
+                typeSize
+            );
         }
         else if (EXIF_RATIONAL == valueType)
         {
             ExifRational rational;
             
-            rational.numerator = getLong((pValueStart + offsetToExifValue), fileByteOrder);
-            rational.denominator = getLong((pValueStart + (offsetToExifValue + 0x4)), fileByteOrder);
+            rational.numerator = getLong(
+                (pValueStart + offsetToExifValue),
+                fileByteOrder
+            );
+            rational.denominator = getLong(
+                (pValueStart + (offsetToExifValue + 0x4)),
+                fileByteOrder
+            );
             
-            memcpy((pValue + offsetToCapturedValue), &rational, sizeof(ExifRational));
+            memcpy(
+                (pValue + offsetToCapturedValue),
+                &rational,
+                sizeof(ExifRational)
+            );
         }
     }
     
@@ -638,7 +670,7 @@ void printAttribute
 {
     // If we didn't get an attribute passed to us, we're going to exit, because
     //  there's nothing for us to print.
-    if (NULL == pAttribute || NULL == pAttribute->pValue)
+    if (NULL == pAttribute)
         return;
     
     printf("%s (%04x): ", pAttribute->pName, pAttribute->tag);
@@ -649,11 +681,11 @@ void printAttribute
         
         if (EXIF_ASCII == pAttribute->type)
         {
-            printf("%c", *(((char *) pAttribute->pValue) + offset));
+            printf("%c", *(pAttribute->pAsciiValues + offset));
         }
         else if (EXIF_RATIONAL == pAttribute->type)
         {
-            ExifRational rational = *(((ExifRational *) pAttribute->pValue + offset));
+            ExifRational rational = *(pAttribute->pRationalValues + offset);
             
             printf("%u ", rational.numerator / rational.denominator);
         }
