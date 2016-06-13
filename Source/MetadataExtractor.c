@@ -556,14 +556,18 @@ bool processAttribute
     //  return NULL, that means an attribute with this tag, was registered.
     if (NULL != pMetadataAttribute)
     {
-        pMetadataAttribute->count  = attributeCount;
-        pMetadataAttribute->pValue = getAttributeValue(
+        void *pCapturedAttributeValue = getAttributeValue(
             pAttributeValue,
             attributeValueBytes,
             attributeType,
             attributeCount,
             fileByteOrder
         );
+        
+        pMetadataAttribute->count  = attributeCount;
+        pMetadataAttribute->pValue = pCapturedAttributeValue;
+        
+        free(pCapturedAttributeValue);
         
         printAttribute(pMetadataAttribute);
     }
@@ -581,43 +585,46 @@ void *getAttributeValue
 )
 {
     void *pValue = NULL;
+    int typeSize = 0x0;
     
     // If the pointer to the start of the value is NULL, we won't be able to do
     //  anything else, therefore we'll exit the function without doing anything.
     if (NULL == pValueStart)
         return NULL;
     
-    // To simplify this a bit, we're going to go ahead and allocate some memory
-    //  that we'll 'memcpy' values to, later on.
-    pValue = malloc(valueBytes);
+    switch (valueType)
+    {
+        case EXIF_ASCII:
+            typeSize = sizeof(char);
+            break;
+        
+        case EXIF_RATIONAL:
+            typeSize = sizeof(ExifRational);
+            break;
+        
+        default:
+            return NULL;
+    }
+    
+    pValue = calloc(typeSize, valueCount);
     
     for (int valueIndex = 0; valueIndex < valueCount; ++valueIndex)
     {
-        int typeBytes = getTypeBytes(valueType);
-        int offsetToValue = typeBytes * valueIndex;
+        int offsetToExifValue     = getTypeBytes(valueType) * valueIndex;
+        int offsetToCapturedValue = typeSize * valueIndex;
         
-        // Just a note, we're not using a switch/case here, because we might
-        //  need to be able to declare variables, which we cannot do within
-        //  a switch/case statement.
         if (EXIF_BYTE == valueType || EXIF_ASCII == valueType)
         {
-            memcpy(pValue + offsetToValue, pValueStart + offsetToValue,
-                typeBytes);
+            memcpy((pValue + offsetToCapturedValue), (pValueStart + offsetToExifValue), typeSize);
         }
         else if (EXIF_RATIONAL == valueType)
         {
-            ExifRational currentRational;
+            ExifRational rational;
             
-            currentRational.numerator = getLong(
-                (pValueStart + (offsetToValue + 0x0)),
-                fileByteOrder
-            );
-            currentRational.denominator = getLong(
-                (pValueStart + (offsetToValue + 0x4)),
-                fileByteOrder
-            );
+            rational.numerator = getLong((pValueStart + offsetToExifValue), fileByteOrder);
+            rational.denominator = getLong((pValueStart + (offsetToExifValue + 0x4)), fileByteOrder);
             
-            memcpy(pValue + offsetToValue, &currentRational, typeBytes);
+            memcpy((pValue + offsetToCapturedValue), &rational, sizeof(ExifRational));
         }
     }
     
@@ -631,14 +638,14 @@ void printAttribute
 {
     // If we didn't get an attribute passed to us, we're going to exit, because
     //  there's nothing for us to print.
-    if (NULL == pAttribute)
+    if (NULL == pAttribute || NULL == pAttribute->pValue)
         return;
     
     printf("%s (%04x): ", pAttribute->pName, pAttribute->tag);
     
     for (int valueIndex = 0; valueIndex < pAttribute->count; ++valueIndex)
     {
-        int offset = getTypeBytes(pAttribute->type) * valueIndex;
+        int offset = valueIndex;
         
         if (EXIF_ASCII == pAttribute->type)
         {
@@ -646,10 +653,9 @@ void printAttribute
         }
         else if (EXIF_RATIONAL == pAttribute->type)
         {
-            ExifRational rationalValue = *((ExifRational *) pAttribute->pValue
-                + offset);
+            ExifRational rational = *(((ExifRational *) pAttribute->pValue + offset));
             
-            printf("%u/%u ", rationalValue.numerator, rationalValue.denominator);
+            printf("%u ", rational.numerator / rational.denominator);
         }
     }
     

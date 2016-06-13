@@ -32,7 +32,7 @@ struct metadataAttributesContainer;
 
 typedef struct metadataAttributesContainer
 {
-    MetadataAttribute *pAttributes;
+    MetadataAttribute **ppAttributes;
     
     size_t attributesAllocated;
     
@@ -65,7 +65,7 @@ void deallocateMetadataAttributesContainer
     MetadataAttributesContainer *pContainer
 );
 
-MetadataAttribute createAttribute
+MetadataAttribute *createAttribute
 (
     const char *pAttributeName,
     uint16_t attributeTag,

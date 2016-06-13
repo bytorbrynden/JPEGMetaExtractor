@@ -10,7 +10,7 @@ MetadataAttributesContainer *allocateMetadataAttributesContainer()
         malloc(sizeof(MetadataAttributesContainer));
     
     // Initialize members
-    pContainer->pAttributes         = (MetadataAttribute *) malloc(0x0);
+    pContainer->ppAttributes         = (MetadataAttribute **) malloc(0x0);
     pContainer->attributesAllocated = 0x0;
     
     // Initialize function pointers
@@ -47,22 +47,21 @@ void deallocateMetadataAttributesContainer
 )
 {
     if (NULL == pContainer ||
-        NULL == pContainer->pAttributes)
+        NULL == pContainer->ppAttributes)
         return;
     
     for (size_t attrIndex = 0; attrIndex < pContainer->attributesAllocated;
         ++attrIndex)
     {
-        if (NULL != (pContainer->pAttributes + attrIndex))
-            if (NULL != ((pContainer->pAttributes + attrIndex))->pValue)
-                free(((pContainer->pAttributes + attrIndex))->pValue);
+        if (NULL != *(pContainer->ppAttributes + attrIndex))
+            free(*(pContainer->ppAttributes + attrIndex));
     }
     
-    free(pContainer->pAttributes);
+    free(pContainer->ppAttributes);
     free(pContainer);
 }
 
-MetadataAttribute createAttribute
+MetadataAttribute *createAttribute
 (
     const char *pAttributeName,
     uint16_t attributeTag,
@@ -70,15 +69,16 @@ MetadataAttribute createAttribute
     int attributeSpecialty
 )
 {
-    MetadataAttribute attribute;
+    MetadataAttribute *pAttribute = (MetadataAttribute *) malloc(sizeof(
+        MetadataAttribute));
     
-    attribute.pName     = pAttributeName;
-    attribute.tag       = attributeTag;
-    attribute.type      = attributeType;
-    attribute.count     = 0;
-    attribute.specialty = attributeSpecialty;
+    pAttribute->pName     = pAttributeName;
+    pAttribute->tag       = attributeTag;
+    pAttribute->type      = attributeType;
+    pAttribute->count     = 0x0;
+    pAttribute->specialty = attributeSpecialty;
     
-    return attribute;
+    return pAttribute;
 }
 
 void addAttribute
@@ -90,6 +90,8 @@ void addAttribute
     int attributeSpecialty
 )
 {
+    MetadataAttribute *pNewAttribute = NULL;
+    
     // If either of the following variables are non-existant (or NULL), we're
     //  not going to go any further.
     if (NULL == pSelf || NULL == pAttributeName)
@@ -97,16 +99,24 @@ void addAttribute
     
     // By now, our attributes "array" should have been allocated. If it hasn't,
     //  we're just going to exit the function.
-    if (NULL == pSelf->pAttributes)
+    if (NULL == pSelf->ppAttributes)
         return;
     
-    pSelf->pAttributes = (MetadataAttribute *) realloc(
-        pSelf->pAttributes,
-        sizeof(MetadataAttribute) * (pSelf->attributesAllocated + 1)
+    pSelf->ppAttributes = (MetadataAttribute **) realloc(
+        pSelf->ppAttributes,
+        sizeof(MetadataAttribute *) * (pSelf->attributesAllocated + 1)
     );
     
-    *(pSelf->pAttributes + pSelf->attributesAllocated) = createAttribute(
-        pAttributeName, attributeTag, attributeType, attributeSpecialty);
+    pNewAttribute = createAttribute(pAttributeName, attributeTag, attributeType,
+        attributeSpecialty);
+    
+    if (NULL != pNewAttribute)
+    {
+        *(pSelf->ppAttributes + pSelf->attributesAllocated) = pNewAttribute;
+    }
+    
+    // *(pSelf->ppAttributes + pSelf->attributesAllocated) = createAttribute(
+    //     pAttributeName, attributeTag, attributeType, attributeSpecialty);
     
     // Increase the value of the variable that keeps track of how many attributes
     //  we've allocated space for.
@@ -126,7 +136,7 @@ MetadataAttribute *getAttributeByTag
     
     for (size_t i = 0; i < pSelf->attributesAllocated; ++i)
     {
-        MetadataAttribute *pCurrentAttribute = &(*(pSelf->pAttributes + i));
+        MetadataAttribute *pCurrentAttribute = *(pSelf->ppAttributes + i);
         
         if (tag == pCurrentAttribute->tag)
             return pCurrentAttribute;
@@ -148,7 +158,7 @@ MetadataAttribute *getAttributeByName
     
     for (size_t i = 0; i < pSelf->attributesAllocated; ++i)
     {
-        MetadataAttribute *pCurrentAttribute = &(*(pSelf->pAttributes + i));
+        MetadataAttribute *pCurrentAttribute = *(pSelf->ppAttributes + i);
         
         if (!strncmp(pCurrentAttribute->pName, pAttributeName, strlen(pAttributeName)))
             return pCurrentAttribute;
