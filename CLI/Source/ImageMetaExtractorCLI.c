@@ -1,35 +1,28 @@
 //
 // JPEGMetaExtractor
-// Source/entry.c
+// CLI/Source/ImageMetaExtractorCLI.c
 //
-#include <stdio.h>
+#include "ImageMetaExtractorCLI.h"
 
-#include "MetadataExtractor.h"
-
-int main
-(
-    int argc, const char **argv
-)
+int main(int argc, const char **argv)
 {
     if (2 > argc)
     {
         printf("A minimum of 2 arguments is required!\n");
-        
         return 1;
     }
     
     for (int argumentIndex = 1; argumentIndex < argc; ++argumentIndex)
     {
+        MetadataAttributesContainer *pMetadata = NULL;
         const char *pCurrentArgument = *(argv + argumentIndex);
         
         printf("Current file: \"%s\"\n", pCurrentArgument);
-        
-        MetadataAttributesContainer *pMetadata = extractMetadata(pCurrentArgument);
+        pMetadata = extractMetadata(pCurrentArgument);
         
         if (NULL != pMetadata)
         {
-            printf("Got metadata!\n");
-            
+            // TODO...
             deallocateMetadataAttributesContainer(pMetadata);
         }
     }
