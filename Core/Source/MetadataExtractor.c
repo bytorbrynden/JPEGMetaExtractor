@@ -656,25 +656,21 @@ void *getAttributeValue
         }
         else if (EXIF_RATIONAL == valueType)
         {
-            ExifRational rational;
+            ExifRational rationalValue;
             
-            rational.numerator = getLong(
+            rationalValue.numerator = getLong(
                 (pValueStart + offsetToExifValue),
                 fileByteOrder
             );
-            rational.denominator = getLong(
+            rationalValue.denominator = getLong(
                 (pValueStart + (offsetToExifValue + 0x4)),
                 fileByteOrder
             );
-            rational.decimalRepresentation = (
-                rational.numerator / rational.denominator
+            rationalValue.decimalRepresentation = (
+                rationalValue.numerator / rationalValue.denominator
             );
             
-            memcpy(
-                (pValue + offsetToCapturedValue),
-                &rational,
-                sizeof(ExifRational)
-            );
+            memcpy((pValue + offsetToCapturedValue), &rationalValue, typeSize);
         }
     }
     
@@ -709,7 +705,7 @@ void printAttribute
         {
             ExifRational rational = *(pAttribute->pRationalValues + offset);
             
-            printf("%u ", rational.decimalRepresentation);
+            printf("%f ", rational.decimalRepresentation);
         }
     }
     

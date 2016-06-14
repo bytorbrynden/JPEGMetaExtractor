@@ -24,7 +24,7 @@ typedef struct exifRational
     ExifLong numerator;
     ExifLong denominator;
     
-    ExifLong decimalRepresentation;
+    double decimalRepresentation;
 } ExifRational;
 
 #endif
