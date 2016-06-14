@@ -18,25 +18,9 @@ MetadataAttributesContainer *allocateMetadataAttributesContainer()
     pContainer->getAttributeByTag  = getAttributeByTag;
     pContainer->getAttributeByName = getAttributeByName;
     
-    // Register attributes
-    pContainer->addAttribute(pContainer, "Make",             0x010F, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
-    pContainer->addAttribute(pContainer, "Model",            0x0110, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
-    pContainer->addAttribute(pContainer, "XResolution",      0x011A, EXIF_RATIONAL, ATTRIBUTE_SPECIALTY_NORMAL);
-    pContainer->addAttribute(pContainer, "YResolution",      0x011B, EXIF_RATIONAL, ATTRIBUTE_SPECIALTY_NORMAL);
-    pContainer->addAttribute(pContainer, "ResolutionUnit",   0x0128, EXIF_SHORT,    ATTRIBUTE_SPECIALTY_NORMAL);
-    pContainer->addAttribute(pContainer, "Software",         0x0131, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
-    pContainer->addAttribute(pContainer, "DateTimeOriginal", 0x9003, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
-    
-    pContainer->addAttribute(pContainer, "GPSVersionID",     0x0000, EXIF_BYTE,     ATTRIBUTE_SPECIALTY_NORMAL);
-    pContainer->addAttribute(pContainer, "GPSLatitudeRef",   0x0001, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
-    pContainer->addAttribute(pContainer, "GPSLatitude",      0x0002, EXIF_RATIONAL, ATTRIBUTE_SPECIALTY_NORMAL);
-    pContainer->addAttribute(pContainer, "GPSLongitudeRef",  0x0003, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
-    pContainer->addAttribute(pContainer, "GPSLongitude",     0x0004, EXIF_RATIONAL, ATTRIBUTE_SPECIALTY_NORMAL);
-    pContainer->addAttribute(pContainer, "GPSAltitudeRef",   0x0005, EXIF_BYTE,     ATTRIBUTE_SPECIALTY_NORMAL);
-    pContainer->addAttribute(pContainer, "GPSAltitude",      0x0006, EXIF_RATIONAL, ATTRIBUTE_SPECIALTY_NORMAL);
-    
-    pContainer->addAttribute(pContainer, "ExifIFDOffset",    0x8769, EXIF_LONG,     ATTRIBUTE_SPECIALTY_IFD_OFFSET);
-    pContainer->addAttribute(pContainer, "GPSIFDOffset",     0x8825, EXIF_LONG,     ATTRIBUTE_SPECIALTY_IFD_OFFSET);
+    // Register IFD offset attributes
+    pContainer->addAttribute(pContainer, "ExifIFDOffset", 0x8769, EXIF_LONG, ATTRIBUTE_SPECIALTY_IFD_OFFSET);
+    pContainer->addAttribute(pContainer, "GPSIFDOffset",  0x8825, EXIF_LONG, ATTRIBUTE_SPECIALTY_IFD_OFFSET);
     
     return pContainer;
 }
