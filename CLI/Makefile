@@ -18,6 +18,9 @@ TARGET_FLAGS := $(shell find ${TEST} -type f -name "*.*")
 CC := gcc
 CCFLAGS := -Wall -Werror -ggdb -I${_INC}
 
+VAL := valgrind
+VALFLAGS := --leak-check=yes --track-origins=yes ${TARGET} ${TARGET_FLAGS}
+
 SOURCES := $(shell find ${_SRC} -type f -name "*.c")
 SOURCE_OBJECTS := $(patsubst ${_SRC}/%.c, ${_OBJ}/%.src.o, ${SOURCES})
 
@@ -72,6 +75,12 @@ cli_create:
 cli_run:
 	@echo "-- Launching executable"
 	@${TARGET} ${TARGET_FLAGS}
+
+# Name: cli_test
+# Description: Runs valgrind against executable.
+cli_test:
+	@echo "-- Running valgrind against executable"
+	@${VAL} ${VALFLAGS}
 
 #### MARK: COMPILATION TARGETS ####
 ${_OBJ}/%.src.o: ${_SRC}/%.c
