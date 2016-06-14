@@ -23,6 +23,8 @@ typedef struct exifRational
 {
     ExifLong numerator;
     ExifLong denominator;
+    
+    ExifLong decimalRepresentation;
 } ExifRational;
 
 #endif

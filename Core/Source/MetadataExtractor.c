@@ -673,6 +673,9 @@ void *getAttributeValue
                 (pValueStart + (offsetToExifValue + 0x4)),
                 fileByteOrder
             );
+            rational.decimalRepresentation = (
+                rational.numerator / rational.denominator
+            );
             
             memcpy(
                 (pValue + offsetToCapturedValue),
@@ -709,7 +712,7 @@ void printAttribute
         {
             ExifRational rational = *(pAttribute->pRationalValues + offset);
             
-            printf("%u ", rational.numerator / rational.denominator);
+            printf("%u ", rational.decimalRepresentation);
         }
     }
     
