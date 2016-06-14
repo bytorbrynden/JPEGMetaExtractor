@@ -566,7 +566,6 @@ bool processAttribute
         );
         
         pMetadataAttribute->count  = attributeCount;
-        // pMetadataAttribute->pValue = pCapturedAttributeValue;
         
         if (NULL != pCapturedAttributeValue)
         {
@@ -581,10 +580,6 @@ bool processAttribute
                         (char *) pCapturedAttributeValue,
                         sizeof(char) * attributeCount
                     );
-                    
-                    // pMetadataAttribute->pAsciiValues = (
-                    //     (char *) pCapturedAttributeValue
-                    // );
                     break;
                 
                 case EXIF_RATIONAL:
@@ -596,10 +591,6 @@ bool processAttribute
                         (ExifRational *) pCapturedAttributeValue,
                         sizeof(ExifRational) * attributeCount
                     );
-                    
-                    // pMetadataAttribute->pRationalValues = (
-                    //     (ExifRational *) pCapturedAttributeValue
-                    // );
                     break;
                 
                 default:
@@ -607,8 +598,6 @@ bool processAttribute
             }
             
             free(pCapturedAttributeValue);
-            
-            printAttribute(pMetadataAttribute);
         }
     }
     
