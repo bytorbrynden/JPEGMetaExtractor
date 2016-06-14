@@ -9,4 +9,6 @@
 
 #include "MetadataExtractor.h"
 
+MetadataAttributesContainer *setupAttributesContainer();
+
 #endif

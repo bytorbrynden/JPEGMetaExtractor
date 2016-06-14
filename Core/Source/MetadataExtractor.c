@@ -85,10 +85,11 @@ int getTypeBytes
 
 MetadataAttributesContainer *extractMetadata
 (
+    MetadataAttributesContainer *pAttributesContainer,
     const char *pImageFilePath
 )
 {
-    MetadataAttributesContainer *pMetadataContainer = NULL;
+    // MetadataAttributesContainer *pMetadataContainer = NULL;
     FILE *pImageFile = NULL;
     char *pAppSeg1 = NULL;
     
@@ -111,7 +112,10 @@ MetadataAttributesContainer *extractMetadata
     if (!isValidEXIFFile(pImageFile))
         return NULL;
     
-    pMetadataContainer = allocateMetadataAttributesContainer();
+    // If an already allocated attribute container wasn't passed to this function,
+    //  we'll go ahead and create one.
+    if (NULL == pAttributesContainer)
+        pAttributesContainer = allocateMetadataAttributesContainer();
     
     // The first thing that we're going to do, is attempt to determine the
     //  file's byte-order. If we don't know the byte-order of the file, all
@@ -132,12 +136,12 @@ MetadataAttributesContainer *extractMetadata
     
     // We will now attempt to "parse" the APP1 segment. In doing so, we will
     //  be able to pull values from it.
-    parseExifAttributeInfoSegment(pMetadataContainer, pAppSeg1, fileByteOrder);
+    parseExifAttributeInfoSegment(pAttributesContainer, pAppSeg1, fileByteOrder);
     
     free(pAppSeg1);
     fclose(pImageFile);
     
-    return pMetadataContainer;
+    return pAttributesContainer;
 }
 
 bool isValidEXIFFile

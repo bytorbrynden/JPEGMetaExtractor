@@ -14,22 +14,49 @@ int main(int argc, const char **argv)
     
     for (int argumentIndex = 1; argumentIndex < argc; ++argumentIndex)
     {
-        MetadataAttributesContainer *pMetadata = NULL;
         const char *pCurrentArgument = *(argv + argumentIndex);
+        MetadataAttributesContainer *pMetadataContainer =
+            setupAttributesContainer();
         
         printf("Current file: \"%s\"\n", pCurrentArgument);
         
-        if (NULL == (pMetadata = extractMetadata(pCurrentArgument)))
+        pMetadataContainer = extractMetadata(pMetadataContainer,
+            pCurrentArgument);
+        
+        if (NULL == pMetadataContainer)
             continue;
         
         for (int attributeIndex = 0; attributeIndex <
-            pMetadata->attributesAllocated; ++attributeIndex)
+            pMetadataContainer->attributesAllocated; ++attributeIndex)
         {
-            printAttribute(*(pMetadata->ppAttributes + attributeIndex));
+            printAttribute(*(pMetadataContainer->ppAttributes + attributeIndex));
         }
         
-        deallocateMetadataAttributesContainer(pMetadata);
+        deallocateMetadataAttributesContainer(pMetadataContainer);
     }
     
     return 0;
+}
+
+MetadataAttributesContainer *setupAttributesContainer()
+{
+    MetadataAttributesContainer *pAttributesContainer =
+        allocateMetadataAttributesContainer();
+    
+    pAttributesContainer->addAttribute(pAttributesContainer, "Make",             0x010F, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
+    pAttributesContainer->addAttribute(pAttributesContainer, "Model",            0x0110, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
+    pAttributesContainer->addAttribute(pAttributesContainer, "XResolution",      0x011A, EXIF_RATIONAL, ATTRIBUTE_SPECIALTY_NORMAL);
+    pAttributesContainer->addAttribute(pAttributesContainer, "YResolution",      0x011B, EXIF_RATIONAL, ATTRIBUTE_SPECIALTY_NORMAL);
+    pAttributesContainer->addAttribute(pAttributesContainer, "ResolutionUnit",   0x0128, EXIF_SHORT,    ATTRIBUTE_SPECIALTY_NORMAL);
+    pAttributesContainer->addAttribute(pAttributesContainer, "Software",         0x0131, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
+    pAttributesContainer->addAttribute(pAttributesContainer, "DateTimeOriginal", 0x9003, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
+    pAttributesContainer->addAttribute(pAttributesContainer, "GPSVersionID",     0x0000, EXIF_BYTE,     ATTRIBUTE_SPECIALTY_NORMAL);
+    pAttributesContainer->addAttribute(pAttributesContainer, "GPSLatitudeRef",   0x0001, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
+    pAttributesContainer->addAttribute(pAttributesContainer, "GPSLatitude",      0x0002, EXIF_RATIONAL, ATTRIBUTE_SPECIALTY_NORMAL);
+    pAttributesContainer->addAttribute(pAttributesContainer, "GPSLongitudeRef",  0x0003, EXIF_ASCII,    ATTRIBUTE_SPECIALTY_NORMAL);
+    pAttributesContainer->addAttribute(pAttributesContainer, "GPSLongitude",     0x0004, EXIF_RATIONAL, ATTRIBUTE_SPECIALTY_NORMAL);
+    pAttributesContainer->addAttribute(pAttributesContainer, "GPSAltitudeRef",   0x0005, EXIF_BYTE,     ATTRIBUTE_SPECIALTY_NORMAL);
+    pAttributesContainer->addAttribute(pAttributesContainer, "GPSAltitude",      0x0006, EXIF_RATIONAL, ATTRIBUTE_SPECIALTY_NORMAL);
+    
+    return pAttributesContainer;
 }

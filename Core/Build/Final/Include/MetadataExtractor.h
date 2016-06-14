@@ -43,6 +43,7 @@ int getTypeBytes
 
 MetadataAttributesContainer *extractMetadata
 (
+    MetadataAttributesContainer *pAttributesContainer,
     const char *pImageFilePath
 );
 
