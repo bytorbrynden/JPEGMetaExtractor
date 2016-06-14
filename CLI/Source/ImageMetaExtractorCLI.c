@@ -18,13 +18,17 @@ int main(int argc, const char **argv)
         const char *pCurrentArgument = *(argv + argumentIndex);
         
         printf("Current file: \"%s\"\n", pCurrentArgument);
-        pMetadata = extractMetadata(pCurrentArgument);
         
-        if (NULL != pMetadata)
+        if (NULL == (pMetadata = extractMetadata(pCurrentArgument)))
+            continue;
+        
+        for (int attributeIndex = 0; attributeIndex <
+            pMetadata->attributesAllocated; ++attributeIndex)
         {
-            // TODO...
-            deallocateMetadataAttributesContainer(pMetadata);
+            printAttribute(*(pMetadata->ppAttributes + attributeIndex));
         }
+        
+        deallocateMetadataAttributesContainer(pMetadata);
     }
     
     return 0;
