@@ -687,6 +687,10 @@ void printAttribute
     if (NULL == pAttribute)
         return;
     
+    // There's no point in printing the values of IFD-offset attributes.
+    if (ATTRIBUTE_SPECIALTY_NORMAL != pAttribute->specialty)
+        return;
+    
     printf("%s (%04x): ", pAttribute->pName, pAttribute->tag);
     
     for (int valueIndex = 0; valueIndex < pAttribute->count; ++valueIndex)
