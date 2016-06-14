@@ -54,7 +54,20 @@ void deallocateMetadataAttributesContainer
         ++attrIndex)
     {
         if (NULL != *(pContainer->ppAttributes + attrIndex))
+        {
+            if (EXIF_ASCII == (*(pContainer->ppAttributes + attrIndex))->type &&
+                NULL != (*(pContainer->ppAttributes + attrIndex))->pAsciiValues)
+            {
+                free((*(pContainer->ppAttributes + attrIndex))->pAsciiValues);
+            }
+            else if (EXIF_RATIONAL == (*(pContainer->ppAttributes + attrIndex))->type &&
+                NULL != (*(pContainer->ppAttributes + attrIndex))->pRationalValues)
+            {
+                free((*(pContainer->ppAttributes + attrIndex))->pRationalValues);
+            }
+            
             free(*(pContainer->ppAttributes + attrIndex));
+        }
     }
     
     free(pContainer->ppAttributes);

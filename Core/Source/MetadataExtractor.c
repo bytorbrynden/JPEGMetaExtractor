@@ -135,6 +135,7 @@ MetadataAttributesContainer *extractMetadata
     parseExifAttributeInfoSegment(pMetadataContainer, pAppSeg1, fileByteOrder);
     
     free(pAppSeg1);
+    fclose(pImageFile);
     
     return pMetadataContainer;
 }
@@ -567,27 +568,48 @@ bool processAttribute
         pMetadataAttribute->count  = attributeCount;
         // pMetadataAttribute->pValue = pCapturedAttributeValue;
         
-        switch (attributeType)
+        if (NULL != pCapturedAttributeValue)
         {
-            case EXIF_ASCII:
-                pMetadataAttribute->pAsciiValues = (
-                    (char *) pCapturedAttributeValue
-                );
-                break;
+            switch (attributeType)
+            {
+                case EXIF_ASCII:
+                    pMetadataAttribute->pAsciiValues = (char *) malloc(
+                        sizeof(char) * attributeCount
+                    );
+                    memcpy(
+                        pMetadataAttribute->pAsciiValues,
+                        (char *) pCapturedAttributeValue,
+                        sizeof(char) * attributeCount
+                    );
+                    
+                    // pMetadataAttribute->pAsciiValues = (
+                    //     (char *) pCapturedAttributeValue
+                    // );
+                    break;
+                
+                case EXIF_RATIONAL:
+                    pMetadataAttribute->pRationalValues = (ExifRational *) malloc(
+                        sizeof(ExifRational) * attributeCount
+                    );
+                    memcpy(
+                        pMetadataAttribute->pRationalValues,
+                        (ExifRational *) pCapturedAttributeValue,
+                        sizeof(ExifRational) * attributeCount
+                    );
+                    
+                    // pMetadataAttribute->pRationalValues = (
+                    //     (ExifRational *) pCapturedAttributeValue
+                    // );
+                    break;
+                
+                default:
+                    break;
+            }
             
-            case EXIF_RATIONAL:
-                pMetadataAttribute->pRationalValues = (
-                    (ExifRational *) pCapturedAttributeValue
-                );
-                break;
+            free(pCapturedAttributeValue);
             
-            default:
-                break;
+            printAttribute(pMetadataAttribute);
         }
-        
-        free(pCapturedAttributeValue);
-        
-        printAttribute(pMetadataAttribute);
     }
     
     return true;
