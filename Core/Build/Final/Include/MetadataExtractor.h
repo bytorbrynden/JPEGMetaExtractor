@@ -88,14 +88,14 @@ bool processAttribute
 (
     MetadataAttributesContainer *pAttributesContainer,
     char *pIFD,
-    void *pAttributeStart,
+    char *pAttributeStart,
     uint32_t offsetFromTIFF,
     int32_t fileByteOrder
 );
 
 void *getAttributeValue
 (
-    void *pValueStart,
+    char *pValueStart,
     ExifShort valueBytes,
     ExifShort valueType,
     ExifLong valueCount,

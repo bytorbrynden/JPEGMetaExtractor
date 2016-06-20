@@ -497,7 +497,7 @@ bool processAttribute
 (
     MetadataAttributesContainer *pAttributesContainer,
     char *pIFD,
-    void *pAttributeStart,
+    char *pAttributeStart,
     uint32_t offsetFromTIFF,
     int32_t fileByteOrder
 )
@@ -610,14 +610,14 @@ bool processAttribute
 
 void *getAttributeValue
 (
-    void *pValueStart,
+    char *pValueStart,
     ExifShort valueBytes,
     ExifShort valueType,
     ExifLong valueCount,
     int32_t fileByteOrder
 )
 {
-    void *pValue = NULL;
+    char *pValue = NULL;
     int typeSize = 0x0;
     
     // If the pointer to the start of the value is NULL, we won't be able to do
