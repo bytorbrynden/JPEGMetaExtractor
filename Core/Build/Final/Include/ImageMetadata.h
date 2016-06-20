@@ -11,12 +11,13 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "ExtractorMacros.h"
 #include "ExifTypes.h"
 
 #define ATTRIBUTE_SPECIALTY_NORMAL 0x0
 #define ATTRIBUTE_SPECIALTY_IFD_OFFSET 0x1
 
-typedef struct metadataAttribute
+LIB_EXPORT typedef struct metadataAttribute
 {
     const char *pName;
     // void *pValue;
@@ -34,9 +35,9 @@ typedef struct metadataAttribute
     int specialty;
 } MetadataAttribute;
 
-struct metadataAttributesContainer;
+LIB_EXPORT struct metadataAttributesContainer;
 
-typedef struct metadataAttributesContainer
+LIB_EXPORT typedef struct metadataAttributesContainer
 {
     MetadataAttribute **ppAttributes;
     
@@ -64,14 +65,14 @@ typedef struct metadataAttributesContainer
     );
 } MetadataAttributesContainer;
 
-MetadataAttributesContainer *allocateMetadataAttributesContainer();
+LIB_EXPORT MetadataAttributesContainer *allocateMetadataAttributesContainer();
 
-void deallocateMetadataAttributesContainer
+LIB_EXPORT void deallocateMetadataAttributesContainer
 (
     MetadataAttributesContainer *pContainer
 );
 
-MetadataAttribute *createAttribute
+LIB_EXPORT MetadataAttribute *createAttribute
 (
     const char *pAttributeName,
     uint16_t attributeTag,
@@ -79,7 +80,7 @@ MetadataAttribute *createAttribute
     int attributeSpecialty
 );
 
-void addAttribute
+LIB_EXPORT void addAttribute
 (
     MetadataAttributesContainer *pSelf,
     const char *pAttributeName,
@@ -88,13 +89,13 @@ void addAttribute
     int attributeSpecialty
 );
 
-MetadataAttribute *getAttributeByTag
+LIB_EXPORT MetadataAttribute *getAttributeByTag
 (
     MetadataAttributesContainer *pSelf,
     uint16_t tag
 );
 
-MetadataAttribute *getAttributeByName
+LIB_EXPORT MetadataAttribute *getAttributeByName
 (
     MetadataAttributesContainer *pSelf,
     const char *pAttributeName

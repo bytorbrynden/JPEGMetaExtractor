@@ -11,6 +11,8 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "ExtractorMacros.h"
+
 #include "ExifTypes.h"
 #include "ImageMetadata.h"
 
@@ -23,60 +25,60 @@
 #define BYTE_ORDER_MOTOROLA 1
 
 // Byte-Swap-for-16-bits reference: http://stackoverflow.com/a/2182184/6052290
-ExifShort getShort
+LIB_EXPORT ExifShort getShort
 (
     void *pShort,
     int fileByteOrder
 );
 
 // Byte-Swap-for-32-bits reference: http://stackoverflow.com/a/2182184/6052290
-ExifLong getLong
+LIB_EXPORT ExifLong getLong
 (
     void *pLong,
     int fileByteOrder
 );
 
-int getTypeBytes
+LIB_EXPORT int getTypeBytes
 (
     int typeId
 );
 
-MetadataAttributesContainer *extractMetadata
+LIB_EXPORT MetadataAttributesContainer *extractMetadata
 (
     MetadataAttributesContainer *pAttributesContainer,
     const char *pImageFilePath
 );
 
-bool isValidEXIFFile
+LIB_EXPORT bool isValidEXIFFile
 (
     FILE *pImageFile
 );
 
-int32_t getFileByteOrder
+LIB_EXPORT int32_t getFileByteOrder
 (
     FILE *pImageFile
 );
 
-char *getExifAttributeInfoSegment
+LIB_EXPORT char *getExifAttributeInfoSegment
 (
     FILE *pImageFile,
     int32_t fileByteOrder
 );
 
-void parseExifAttributeInfoSegment
+LIB_EXPORT void parseExifAttributeInfoSegment
 (
     MetadataAttributesContainer *pAttributeContainer,
     char *pAttributeInfoSegment,
     int32_t fileByteOrder
 );
 
-uint32_t getImageFileDirectoryLength
+LIB_EXPORT uint32_t getImageFileDirectoryLength
 (
     char *pDirectory,
     int32_t fileByteOrder
 );
 
-bool processImageFileDirectory
+LIB_EXPORT bool processImageFileDirectory
 (
     MetadataAttributesContainer *pAttributesContainer,
     char *pDirectory,
@@ -84,7 +86,7 @@ bool processImageFileDirectory
     int32_t fileByteOrder
 );
 
-bool processAttribute
+LIB_EXPORT bool processAttribute
 (
     MetadataAttributesContainer *pAttributesContainer,
     char *pIFD,
@@ -93,7 +95,7 @@ bool processAttribute
     int32_t fileByteOrder
 );
 
-void *getAttributeValue
+LIB_EXPORT void *getAttributeValue
 (
     char *pValueStart,
     ExifShort valueBytes,
@@ -102,7 +104,7 @@ void *getAttributeValue
     int32_t fileByteOrder
 );
 
-void printAttribute
+LIB_EXPORT void printAttribute
 (
     MetadataAttribute *pAttribute
 );
