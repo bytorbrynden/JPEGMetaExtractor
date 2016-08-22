@@ -58,3 +58,6 @@ I used the following resources to help me get a firm understanding of Exif, and 
  - [TIFF tags](http://www.awaresystems.be/imaging/tiff/tifftags.html)
 
 I read the Exif 2.2 specification from cover-to-cover, at least 4 different times. It proved itself to be extremely useful.
+
+## License
+This project is released under an [MIT License](http://choosealicense.com/licenses/mit/). You can view the full license text, [here](./LICENSE.txt).
