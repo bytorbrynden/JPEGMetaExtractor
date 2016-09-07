@@ -39,7 +39,7 @@ setup_structure:
 # Name: library_all
 # Description: This target, when invoked, invokes all other library-related
 #  targets.
-library_all: library_clean library_sources library_create library_copy
+library_all: library_clean library_sources library_create
 
 # Name: library_clean
 # Description: This target deletes any build-resources (objects files, etc.)
